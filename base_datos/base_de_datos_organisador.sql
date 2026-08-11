@@ -125,3 +125,17 @@ LEFT JOIN habitos h ON he.id_habitos = h.id
 GROUP BY p.id, p.semana, h.id, h.habitos
 ORDER BY p.fecha_inicio, cantidad DESC;
 
+
+
+--semana en que se realiso y dia en que se realiso--
+SELECT 
+  p.semana,
+  h.habitos,
+  d.diás,
+  he.fecha_realisado
+FROM periodos p
+LEFT JOIN habitos_echos he ON he.fecha_realisado BETWEEN p.fecha_inicio AND p.fecha_fin
+LEFT JOIN habitos h ON he.id_habitos = h.id
+LEFT JOIN dias d ON he.id_dias = d.id
+ORDER BY p.fecha_inicio, d.id, h.habitos;
+
