@@ -16,6 +16,6 @@ public class dias {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name="diás")
+    @Column(name="dias")
     private  String dias;
 }

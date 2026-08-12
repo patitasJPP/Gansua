@@ -2,7 +2,7 @@
 --insertamos lo que son los datos
 ---------------------------------
 
-insert into dias(diás) values 
+insert into dias(dias) values 
 ('lunes'),
 ('martes'),
 ('miercoles'),

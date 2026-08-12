@@ -2,7 +2,7 @@
 --creamos lo que son las tablas--
 create table dias(
 id SERIAL PRIMARY key,
-diás varchar(100) not null
+dias varchar(100) not null
 );
 
 create table habitos( 
@@ -31,7 +31,7 @@ CREATE TABLE periodos(
 --insertamos lo que son los datos
 ---------------------------------
 
-insert into dias(diás) values 
+insert into dias(dias) values 
 ('lunes'),
 ('martes'),
 ('miercoles'),
@@ -93,10 +93,10 @@ INSERT INTO periodos(semana, fecha_inicio, fecha_fin) VALUES
 --pruevas de campo--
 --------------------
 
-select d.diás,h.habitos,he.fecha_realisado from habitos_echos he
+select d.dias,h.habitos,he.fecha_realisado from habitos_echos he
 join dias d on he.id_dias=d.id 
 join habitos h on he.id_habitos= h.id 
-ORDER BY CASE d.diás
+ORDER BY CASE d.dias
   WHEN 'lunes' THEN 1
   WHEN 'martes' THEN 2
   WHEN 'miercoles' THEN 3
@@ -131,7 +131,7 @@ ORDER BY p.fecha_inicio, cantidad DESC;
 SELECT 
   p.semana,
   h.habitos,
-  d.diás,
+  d.dias,
   he.fecha_realisado
 FROM periodos p
 LEFT JOIN habitos_echos he ON he.fecha_realisado BETWEEN p.fecha_inicio AND p.fecha_fin

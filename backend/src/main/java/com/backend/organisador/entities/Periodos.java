@@ -6,13 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="periodos")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Periodo {
+public class Periodos {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,10 +23,10 @@ public class Periodo {
     private String semana;
 
     @Column(name = "fecha_inicio")
-    private LocalDate fechaInicio;
+    private LocalDateTime fechaInicio;
 
     @Column(name = "fecha_fin")
-    private LocalDate fechaFin;
+    private LocalDateTime fechaFin;
 
     @Column(name = "total_habitos")
     private Integer totalHabitos;

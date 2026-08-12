@@ -1,9 +1,13 @@
 package com.backend.organisador.entities;
 
-public interface datosSemana {
+public interface DatosSemana {
+
 
     String getSemana();
+
     String getHabitos();
+
     String getDias();
+
     String getFecha();
 }
