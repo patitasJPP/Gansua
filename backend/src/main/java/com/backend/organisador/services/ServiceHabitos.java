@@ -1,6 +1,6 @@
 package com.backend.organisador.services;
 
-import com.backend.organisador.entities.Habitos;
+import com.backend.organisador.entities.Habito;
 import com.backend.organisador.repocitory.HabitosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,14 +15,27 @@ public class ServiceHabitos {
 
 
     //fucniones de traer los datos
-    public List<Habitos> obtenerTodos(){
+    public List<Habito> obtenerTodos(){
         //metemos todos los abitos
-        List<Habitos> habitos = habitosRepository.findAll();
+        List<Habito> habitos = habitosRepository.findAll();
 
         return habitos;
 
     }
-    public long contadorHabitos(){
-        return habitosRepository.count();
+
+    public Habito crearHabito(String nombre){
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre del habito no puede estar vacio");
+        }
+        Habito nuevo = new Habito();
+        nuevo.setHabitos(nombre.trim());
+        return habitosRepository.save(nuevo);
+    }
+
+    public void eliminarHabito(Long id){
+        if (!habitosRepository.existsById(id)) {
+            throw new IllegalArgumentException("El habito con id " + id + " no existe");
+        }
+        habitosRepository.deleteById(id);
     }
 }

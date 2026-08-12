@@ -3,6 +3,7 @@ import { useHabitos } from "../hook/useHabitos";
 import { useDatosSemana } from "../hook/useDatosSemana";
 import { useHabitosLocalStorage } from "../hook/useHabitosLocalStorage";
 import { useSincronizacion } from "../hook/useSincronizacion";
+import { habitosService } from "../../../Services/habitos";
 
 const dias = [
   "lunes",
@@ -20,11 +21,16 @@ const capitalizar = (texto: string | undefined) => {
 };
 
 const HabitosPage = () => {
-  const [misHabitos] = useHabitos();
+  const [misHabitos, refrescarHabitos] = useHabitos();
   const [datosSemana, refrescarDatosSemana] = useDatosSemana();
   const [completados, setCompletados] = useState<Record<string, boolean>>({});
   const [cambiosPendientes, setCambiosPendientes] = useState(false);
   const [sincronizando, setSincronizando] = useState(false);
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [nuevoHabito, setNuevoHabito] = useState("");
+  const [guardandoHabito, setGuardandoHabito] = useState(false);
+  const [mensajeError, setMensajeError] = useState("");
+  const [eliminandoId, setEliminandoId] = useState<number | null>(null);
 
   const { cargar, guardar, limpiar } = useHabitosLocalStorage();
   const { calcularCambios, sincronizar, sincronizarBeacon } = useSincronizacion();
@@ -149,6 +155,62 @@ const HabitosPage = () => {
     setCambiosPendientes(true);
   };
 
+  const abrirModal = () => {
+    setNuevoHabito("");
+    setMensajeError("");
+    setModalAbierto(true);
+  };
+
+  const handleAgregarHabito = async () => {
+    const nombre = nuevoHabito.trim();
+    if (!nombre) {
+      setMensajeError("Escribe el nombre del hábito");
+      return;
+    }
+    setGuardandoHabito(true);
+    try {
+      await habitosService.crear(nombre);
+      await refrescarHabitos();
+      await refrescarDatosSemana();
+      setNuevoHabito("");
+      setModalAbierto(false);
+      setMensajeError("");
+    } catch (error) {
+      console.error("Error al crear el hábito:", error);
+      setMensajeError("No se pudo crear el hábito");
+    } finally {
+      setGuardandoHabito(false);
+    }
+  };
+
+  const handleEliminarHabito = async (id: number, nombre: string) => {
+    if (
+      !window.confirm(
+        `¿Eliminar el hábito "${capitalizar(nombre)}"? Se borrará también su historial de la semana.`,
+      )
+    ) {
+      return;
+    }
+    setEliminandoId(id);
+    try {
+      await habitosService.eliminar(id);
+      // Limpia las marcas locales del hábito eliminado para no dejar claves fantasma
+      const resto = Object.fromEntries(
+        Object.entries(completadosRef.current).filter(
+          ([clave]) => !clave.endsWith(`-${id}`),
+        ),
+      );
+      guardar(semanaRef.current, resto);
+      await refrescarHabitos();
+      await refrescarDatosSemana();
+    } catch (error) {
+      console.error("Error al eliminar el hábito:", error);
+      window.alert("No se pudo eliminar el hábito");
+    } finally {
+      setEliminandoId(null);
+    }
+  };
+
   if (!habitosValidos || habitosValidos.length === 0) {
     return (
       <div className="min-h-screen bg-emerald-50 p-8 flex items-center justify-center">
@@ -181,6 +243,13 @@ const HabitosPage = () => {
           )}
           <button
             type="button"
+            onClick={abrirModal}
+            className="px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-semibold shadow-lg shadow-emerald-600/30 hover:from-emerald-700 hover:to-emerald-600 transition"
+          >
+            <span className="mr-1">+</span> Agregar hábito
+          </button>
+          <button
+            type="button"
             onClick={handleSincronizar}
             disabled={!cambiosPendientes || sincronizando}
             className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 disabled:opacity-50 transition"
@@ -195,7 +264,7 @@ const HabitosPage = () => {
       </div>
 
       <div className="bg-white rounded-xl border border-emerald-200 overflow-hidden shadow-lg">
-        <div className="grid grid-cols-[170px_repeat(7,1fr)]">
+        <div className="grid grid-cols-[190px_repeat(7,1fr)]">
           {/* Esquina superior izquierda */}
           <div className="p-4 bg-emerald-700 text-white font-semibold">
             Hábito
@@ -214,8 +283,21 @@ const HabitosPage = () => {
           {/* Hábitos a la izquierda con sus casillas */}
           {habitosValidos.map((habito) => (
             <Fragment key={`habito-${habito.id}`}>
-              <div className="p-4 border-t border-emerald-200 text-emerald-800 font-medium flex items-center">
-                {capitalizar(habito.habitos)}
+              <div className="p-4 border-t border-emerald-200 text-emerald-800 font-medium flex items-center justify-between gap-2">
+                <span>{capitalizar(habito.habitos)}</span>
+                <button
+                  type="button"
+                  onClick={() => handleEliminarHabito(habito.id, habito.habitos)}
+                  disabled={eliminandoId === habito.id}
+                  className="w-7 h-7 shrink-0 flex items-center justify-center rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition disabled:opacity-50 cursor-pointer"
+                  title={`Eliminar ${habito.habitos}`}
+                >
+                  {eliminandoId === habito.id ? (
+                    <span className="w-4 h-4 border-2 border-red-300 border-t-red-500 rounded-full animate-spin" />
+                  ) : (
+                    <span className="text-sm leading-none">✕</span>
+                  )}
+                </button>
               </div>
 
               {dias.map((dia) => {
@@ -244,6 +326,83 @@ const HabitosPage = () => {
           ))}
         </div>
       </div>
+
+      {/* Modal para agregar un hábito */}
+      {modalAbierto && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={() => setModalAbierto(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-emerald-600/30">
+                  +
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-emerald-900">
+                    Nuevo hábito
+                  </h2>
+                  <p className="text-sm text-emerald-600">
+                    Agrega un hábito a tu rutina
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalAbierto(false)}
+                className="text-emerald-400 hover:text-emerald-700 transition text-xl leading-none cursor-pointer"
+                title="Cerrar"
+              >
+                ✕
+              </button>
+            </div>
+
+            <label className="block text-sm font-medium text-emerald-800 mb-1.5">
+              Nombre del hábito
+            </label>
+            <input
+              type="text"
+              autoFocus
+              value={nuevoHabito}
+              onChange={(e) => {
+                setNuevoHabito(e.target.value);
+                if (mensajeError) setMensajeError("");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleAgregarHabito();
+              }}
+              placeholder="Ej: leer, meditar, correr..."
+              className="w-full px-4 py-2.5 rounded-lg border border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-emerald-900 placeholder:text-emerald-300 transition"
+            />
+
+            {mensajeError && (
+              <p className="mt-2 text-sm text-red-600">{mensajeError}</p>
+            )}
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setModalAbierto(false)}
+                className="px-4 py-2 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 font-medium transition cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleAgregarHabito}
+                disabled={guardandoHabito}
+                className="px-5 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 shadow-lg shadow-emerald-600/30 disabled:opacity-50 transition cursor-pointer"
+              >
+                {guardandoHabito ? "Guardando..." : "Guardar hábito"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -25,32 +25,25 @@ public class ServiciosDatosSemana {
     private DiasRepository diasRepository;
 
     public List<DatosSemana> obtenerDatosSemana(String semana){
-        System.out.println("== [SERVICIO] Obteniendo datos de la semana: " + semana + " ==");
-        List<DatosSemana> datos = datosSemanaRepository.buscarPorSemana(semana);
-        System.out.println("== [SERVICIO] Se encontraron " + datos.size() + " registros en la semana " + semana + " ==");
-        return datos;
+        return datosSemanaRepository.buscarPorSemana(semana);
     }
 
     @Transactional
     public int sincronizar(Periodo periodo, List<HabitoMarcado> marcados, List<HabitoMarcado> desmarcados) {
         int cambios = 0;
-        System.out.println("== [SERVICIO] Sincronizando semana: " + periodo.getSemana() + " ==");
 
         if (desmarcados != null) {
-            System.out.println("== [SERVICIO] Desmarcados recibidos: " + desmarcados.size() + " ==");
             for (HabitoMarcado habito : desmarcados) {
                 cambios += eliminar(periodo, habito);
             }
         }
 
         if (marcados != null) {
-            System.out.println("== [SERVICIO] Marcados recibidos: " + marcados.size() + " ==");
             for (HabitoMarcado habito : marcados) {
                 cambios += insertar(periodo, habito);
             }
         }
 
-        System.out.println("== [SERVICIO] Sincronizacion completada. Total de cambios: " + cambios + " ==");
         return cambios;
     }
 
@@ -68,8 +61,6 @@ public class ServiciosDatosSemana {
         LocalDateTime fin = periodo.getFechaFin();
 
         int eliminados = datosSemanaRepository.eliminarHabito(idDia, idHabito, inicio, fin);
-        System.out.println("== [SERVICIO] Eliminado " + eliminados + " registro(s) del dia "
-                + habito.getDia() + " habitoId " + habito.getHabitoId() + " ==");
         return eliminados;
     }
 
@@ -91,8 +82,6 @@ public class ServiciosDatosSemana {
         LocalDate fecha = periodo.getFechaInicio().toLocalDate().plusDays(idDia - 1);
 
         int insertados = datosSemanaRepository.insertarHabito(idDia, idHabito, fecha);
-        System.out.println("== [SERVICIO] Insertado " + insertados + " registro(s): dia "
-                + habito.getDia() + " habitoId " + habito.getHabitoId() + " fecha " + fecha + " ==");
         return insertados;
     }
 }

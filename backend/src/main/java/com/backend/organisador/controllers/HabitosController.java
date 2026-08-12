@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.backend.organisador.services.ServiceHabitos;
-import  com.backend.organisador.entities.Habitos;
+import  com.backend.organisador.entities.Habito;
 import com.backend.organisador.services.PeriodoService;
 
 
@@ -33,8 +33,32 @@ public class HabitosController {
 
 
     @GetMapping
-    public List<Habitos> obtenerTodo(){
+    public List<Habito> obtenerTodo(){
    return servicioHabitos.obtenerTodos();
+    }
+
+    @PostMapping
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<?> crearHabito(@RequestBody Habito habitos){
+        try {
+            Habito nuevo = servicioHabitos.crearHabito(habitos.getHabitos());
+            return ResponseEntity.ok(nuevo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MensajeResponse(false, "Error al crear el habito: " + e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<MensajeResponse> eliminarHabito(@PathVariable Long id){
+        try {
+            servicioHabitos.eliminarHabito(id);
+            return ResponseEntity.ok(new MensajeResponse(true, "Habito eliminado exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MensajeResponse(false, "Error al eliminar el habito: " + e.getMessage()));
+        }
     }
 
 
@@ -49,16 +73,13 @@ public class HabitosController {
     @CrossOrigin(origins = "*")
     public ResponseEntity<MensajeResponse> sincronizar(@RequestBody SincronizacionRequest request){
         try {
-            System.out.println("== [CONTROLLER] Sincronizacion recibida. Semana: " + request.getSemana() + " ==");
-
             Periodo periodo = servicioPeriodo.obtenerOCrearSemana(LocalDateTime.now());
 
             List<HabitoMarcado> marcados = request.getMarcados();
             List<HabitoMarcado> desmarcados = request.getDesmarcados();
 
-            int cambios = servicioDatosSemana.sincronizar(periodo, marcados, desmarcados);
+            servicioDatosSemana.sincronizar(periodo, marcados, desmarcados);
 
-            System.out.println("== [CONTROLLER] Sincronizacion exitosa. Cambios aplicados: " + cambios + " ==");
             return ResponseEntity.ok(new MensajeResponse(true, "Sincronizado exitosamente"));
         } catch (Exception e) {
             System.out.println("== [CONTROLLER][ERROR] Fallo al sincronizar: " + e.getMessage() + " ==");

@@ -25,22 +25,18 @@ public class PeriodoService {
         Optional<Periodo> periodo = periodoRepository.findSemanaByFecha(fechaDateTime);
 
         if (periodo.isPresent()) {
-            System.out.println("se encontro la fecha " + fecha + " en la semana " + periodo.get().getSemana());
             return true;
         }
 
-        System.out.println("no se encontro la fecha " + fecha);
         return false;
     }
 
     // Verificar semana por nombre
     public boolean verificarSemana(String semana) {
         if (periodoRepository.existsBySemana(semana)) {
-            System.out.println("se encontro la semana " + semana);
             return true;
         }
 
-        System.out.println("no se encontro la semana " + semana);
         return false;
     }
 
@@ -49,11 +45,8 @@ public class PeriodoService {
         Optional<Periodo> periodo = periodoRepository.findSemanaByFecha(fecha);
 
         if (periodo.isPresent()) {
-            System.out.println("se encontro la fecha " + fecha + " en la semana " + periodo.get().getSemana());
             return periodo.get();
         }
-
-        System.out.println("no se encontro la fecha " + fecha + ", se calculara la semana nueva");
 
         // Calcula el lunes de la semana actual
         LocalDate lunes = fecha.toLocalDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -67,8 +60,6 @@ public class PeriodoService {
         nuevo.setTotalHabitos(0);
 
         // Guarda en BD
-        Periodo guardado = periodoRepository.save(nuevo);
-        System.out.println("se inserto la semana " + guardado.getSemana() + " del " + lunes + " al " + proximoLunes);
-        return guardado;
+        return periodoRepository.save(nuevo);
     }
 }
