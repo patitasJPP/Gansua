@@ -1,12 +1,12 @@
 package com.backend.organisador.controllers;
 
 import com.backend.organisador.entities.DatosSemana;
-import com.backend.organisador.entities.Periodos;
-import com.backend.organisador.services.serviceDatosSemana;
+import com.backend.organisador.entities.Periodo;
+import com.backend.organisador.services.ServiciosDatosSemana;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.backend.organisador.services.serviceHabitos;
-import  com.backend.organisador.entities.habitos;
+import com.backend.organisador.services.ServiceHabitos;
+import  com.backend.organisador.entities.Habitos;
 import com.backend.organisador.services.PeriodoService;
 
 
@@ -19,25 +19,25 @@ import java.util.List;
 public class HabitosController {
 
     @Autowired
-    private serviceHabitos ServicioHabitos;
+    private ServiceHabitos servicioHabitos;
     @Autowired
-    private serviceDatosSemana ServicioDatosSemana;
+    private ServiciosDatosSemana servicioDatosSemana;
 
     @Autowired
-    private PeriodoService ServicioPeriodo;
+    private PeriodoService servicioPeriodo;
 
 
     @GetMapping
-    public List<habitos> ObtenerTodo(){
-   return ServicioHabitos.ObtenerTodos();
+    public List<Habitos> obtenerTodo(){
+   return servicioHabitos.obtenerTodos();
     }
 
 
     @GetMapping("/datos_semana")
     @CrossOrigin(origins = "*")
-    public List<DatosSemana> ObtenerDatosSemana(){
-        Periodos periodo = ServicioPeriodo.obtenerOCrearSemana(LocalDateTime.now());
-        return ServicioDatosSemana.ObtenerDatosSemana(periodo.getSemana());
+    public List<DatosSemana> obtenerDatosSemana(){
+        Periodo periodo = servicioPeriodo.obtenerOCrearSemana(LocalDateTime.now());
+        return servicioDatosSemana.obtenerDatosSemana(periodo.getSemana());
     }
 
 }

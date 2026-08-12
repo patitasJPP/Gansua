@@ -1,14 +1,14 @@
 package com.backend.organisador.repocitory;
 
 import com.backend.organisador.entities.DatosSemana;
-import com.backend.organisador.entities.dias;
+import com.backend.organisador.entities.Dias;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface datosSemanaRepositori extends JpaRepository<dias, Long> {
+public interface DatosSemanaRepository extends JpaRepository<Dias, Long> {
 
     @Query(value = "SELECT p.semana AS semana, h.habitos AS habitos, d.dias AS dias, CAST(he.fecha_realisado AS varchar) AS fecha " +
             "FROM periodos p " +

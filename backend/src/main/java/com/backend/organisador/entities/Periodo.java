@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Periodos {
+public class Periodo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

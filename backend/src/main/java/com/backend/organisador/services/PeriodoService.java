@@ -1,6 +1,6 @@
 package com.backend.organisador.services;
 
-import com.backend.organisador.entities.Periodos;
+import com.backend.organisador.entities.Periodo;
 import com.backend.organisador.repocitory.PeriodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class PeriodoService {
     public boolean verificarSemana(LocalDate fecha) {
         // Convierte LocalDate a LocalDateTime
         LocalDateTime fechaDateTime = fecha.atStartOfDay();
-        Optional<Periodos> periodo = periodoRepository.findSemanaByFecha(fechaDateTime);
+        Optional<Periodo> periodo = periodoRepository.findSemanaByFecha(fechaDateTime);
 
         if (periodo.isPresent()) {
             System.out.println("se encontro la fecha " + fecha + " en la semana " + periodo.get().getSemana());
@@ -45,8 +45,8 @@ public class PeriodoService {
     }
 
     // Obtener o crear semana
-    public Periodos obtenerOCrearSemana(LocalDateTime fecha) {
-        Optional<Periodos> periodo = periodoRepository.findSemanaByFecha(fecha);
+    public Periodo obtenerOCrearSemana(LocalDateTime fecha) {
+        Optional<Periodo> periodo = periodoRepository.findSemanaByFecha(fecha);
 
         if (periodo.isPresent()) {
             System.out.println("se encontro la fecha " + fecha + " en la semana " + periodo.get().getSemana());
@@ -60,14 +60,14 @@ public class PeriodoService {
         LocalDate proximoLunes = lunes.plusWeeks(1);
 
         // Crea nuevo período
-        Periodos nuevo = new Periodos();
+        Periodo nuevo = new Periodo();
         nuevo.setSemana("semana " + (periodoRepository.count() + 1));
         nuevo.setFechaInicio(lunes.atStartOfDay());
         nuevo.setFechaFin(proximoLunes.atStartOfDay());
         nuevo.setTotalHabitos(0);
 
         // Guarda en BD
-        Periodos guardado = periodoRepository.save(nuevo);
+        Periodo guardado = periodoRepository.save(nuevo);
         System.out.println("se inserto la semana " + guardado.getSemana() + " del " + lunes + " al " + proximoLunes);
         return guardado;
     }

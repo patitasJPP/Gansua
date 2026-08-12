@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class dias {
+public class Dias {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

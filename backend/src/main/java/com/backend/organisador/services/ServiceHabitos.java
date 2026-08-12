@@ -1,28 +1,28 @@
 package com.backend.organisador.services;
 
-import com.backend.organisador.entities.habitos;
-import com.backend.organisador.repocitory.habitosRepositori;
+import com.backend.organisador.entities.Habitos;
+import com.backend.organisador.repocitory.HabitosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class serviceHabitos {
+public class ServiceHabitos {
 
     @Autowired
-    private habitosRepositori HabitosRepositori;
+    private HabitosRepository habitosRepository;
 
 
     //fucniones de traer los datos
-    public List<habitos> ObtenerTodos(){
+    public List<Habitos> obtenerTodos(){
         //metemos todos los abitos
-        List<habitos> habitos=HabitosRepositori.findAll();
+        List<Habitos> habitos = habitosRepository.findAll();
 
         return habitos;
 
     }
     public long contadorHabitos(){
-        return HabitosRepositori.count();
+        return habitosRepository.count();
     }
 }

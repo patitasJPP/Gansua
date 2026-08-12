@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class habitos {
+public class Habitos {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

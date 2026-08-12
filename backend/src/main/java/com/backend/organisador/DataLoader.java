@@ -1,7 +1,7 @@
 package com.backend.organisador;
 
-import com.backend.organisador.services.serviceHabitos;
-import com.backend.organisador.services.serviceDias;
+import com.backend.organisador.services.ServiceHabitos;
+import com.backend.organisador.services.ServiceDias;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataLoader implements CommandLineRunner {
 
-    private  final  serviceHabitos ServiceHabitos;
-    private final serviceDias ServiceDias;
-    public  DataLoader(serviceHabitos ServiceHabitos, serviceDias serviceDias) {
-        this.ServiceHabitos=ServiceHabitos;
+    private  final  ServiceHabitos servicioHabitos;
+    private final ServiceDias servicioDias;
+    public  DataLoader(ServiceHabitos servicioHabitos, ServiceDias servicioDias) {
+        this.servicioHabitos=servicioHabitos;
 
-        ServiceDias = serviceDias;
+        this.servicioDias = servicioDias;
     }
 
 
@@ -23,11 +23,11 @@ public class DataLoader implements CommandLineRunner {
         System.out.println(String.valueOf('/').repeat(50));
         System.out.println("\n========== MOSTRANDO HÁBITOS EN CONSOLA ==========\n");
 
-        ServiceHabitos.ObtenerTodos().forEach(habito ->
+        servicioHabitos.obtenerTodos().forEach(habito ->
                 System.out.println(habito)
         );
 
-        System.out.println("la cantidad de abitos que usten contiene es la siguiente: "+ ServiceHabitos.contadorHabitos());
+        System.out.println("la cantidad de abitos que usten contiene es la siguiente: "+ servicioHabitos.contadorHabitos());
 
 
         System.out.println("\n========== FIN ==========\n");
@@ -38,7 +38,7 @@ public class DataLoader implements CommandLineRunner {
         System.out.print(String.valueOf("/").repeat(50));
         //contenido de lo que son los abitos
 
-        ServiceDias.ObtenerTodo().forEach(dias -> System.out.println(dias));
+        servicioDias.obtenerTodo().forEach(dias -> System.out.println(dias));
 
         //final
         System.out.print(String.valueOf("/").repeat(50));
