@@ -21,7 +21,7 @@ const capitalizar = (texto: string | undefined) => {
 
 const HabitosPage = () => {
   const [misHabitos] = useHabitos();
-  const [datosSemana] = useDatosSemana();
+  const [datosSemana, refrescarDatosSemana] = useDatosSemana();
   const [completados, setCompletados] = useState<Record<string, boolean>>({});
   const [cambiosPendientes, setCambiosPendientes] = useState(false);
   const [sincronizando, setSincronizando] = useState(false);
@@ -50,8 +50,9 @@ const HabitosPage = () => {
     return Array.from(habitosUnicos.values());
   }, [misHabitos, datosSemana]);
 
-  const idPorNombre = Object.fromEntries(
-    habitosValidos.map((h) => [h.habitos, h.id]),
+  const idPorNombre = useMemo(
+    () => Object.fromEntries(habitosValidos.map((h) => [h.habitos, h.id])),
+    [habitosValidos],
   );
 
   // ✅ Marca los habitos que vienen de la BD para la semana actual
@@ -102,10 +103,11 @@ const HabitosPage = () => {
       if (resultado.success) {
         limpiar(semana);
         setCambiosPendientes(false);
+        await refrescarDatosSemana();
       }
       return resultado;
     },
-    [calcularCambios, sincronizar, limpiar],
+    [calcularCambios, sincronizar, limpiar, refrescarDatosSemana],
   );
 
   // ✅ Botón manual de guardado
@@ -178,6 +180,7 @@ const HabitosPage = () => {
             </div>
           )}
           <button
+            type="button"
             onClick={handleSincronizar}
             disabled={!cambiosPendientes || sincronizando}
             className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 disabled:opacity-50 transition"
@@ -219,6 +222,7 @@ const HabitosPage = () => {
                 const completado = completados[`${dia}-${habito.id}`];
                 return (
                   <button
+                    type="button"
                     key={`${habito.id}-${dia}`}
                     onClick={() => toggle(dia, habito.id)}
                     className="p-4 border-t border-emerald-200 flex items-center justify-center hover:bg-emerald-50 transition cursor-pointer"
