@@ -3,9 +3,13 @@ package com.backend.organisador.repocitory;
 import com.backend.organisador.entities.DatosSemana;
 import com.backend.organisador.entities.Dias;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface DatosSemanaRepository extends JpaRepository<Dias, Long> {
@@ -18,4 +22,22 @@ public interface DatosSemanaRepository extends JpaRepository<Dias, Long> {
             "WHERE p.semana = :semana " +
             "ORDER BY d.id, h.habitos", nativeQuery = true)
     List<DatosSemana> buscarPorSemana(@Param("semana") String semana);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM habitos_echos " +
+            "WHERE id_dias = :idDias AND id_habitos = :idHabitos " +
+            "AND fecha_realisado BETWEEN :inicio AND :fin", nativeQuery = true)
+    int eliminarHabito(@Param("idDias") Long idDias,
+                       @Param("idHabitos") Long idHabitos,
+                       @Param("inicio") LocalDateTime inicio,
+                       @Param("fin") LocalDateTime fin);
+
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO habitos_echos (id_dias, id_habitos, fecha_realisado) " +
+            "VALUES (:idDias, :idHabitos, :fecha)", nativeQuery = true)
+    int insertarHabito(@Param("idDias") Long idDias,
+                       @Param("idHabitos") Long idHabitos,
+                       @Param("fecha") LocalDate fecha);
 }

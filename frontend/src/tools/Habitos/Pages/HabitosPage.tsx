@@ -1,6 +1,8 @@
-import { Fragment, useEffect, useState, useMemo } from "react";
-import { useHabitos } from "../hook/usehabitos";
+import { Fragment, useEffect, useState, useMemo, useRef, useCallback } from "react";
+import { useHabitos } from "../hook/useHabitos";
 import { useDatosSemana } from "../hook/useDatosSemana";
+import { useHabitosLocalStorage } from "../hook/useHabitosLocalStorage";
+import { useSincronizacion } from "../hook/useSincronizacion";
 
 const dias = [
   "lunes",
@@ -21,6 +23,13 @@ const HabitosPage = () => {
   const [misHabitos] = useHabitos();
   const [datosSemana] = useDatosSemana();
   const [completados, setCompletados] = useState<Record<string, boolean>>({});
+  const [cambiosPendientes, setCambiosPendientes] = useState(false);
+  const [sincronizando, setSincronizando] = useState(false);
+
+  const { cargar, guardar, limpiar } = useHabitosLocalStorage();
+  const { calcularCambios, sincronizar, sincronizarBeacon } = useSincronizacion();
+
+  const semanaActual = datosSemana[0]?.semana ?? "semana 1";
 
   // ✅ EXTRAE hábitos únicos de datosSemana si misHabitos está vacío
   const habitosValidos = useMemo(() => {
@@ -45,7 +54,8 @@ const HabitosPage = () => {
     habitosValidos.map((h) => [h.habitos, h.id]),
   );
 
-  useEffect(() => {
+  // ✅ Marca los habitos que vienen de la BD para la semana actual
+  const completadosBD = useMemo(() => {
     const marcados: Record<string, boolean> = {};
     datosSemana.forEach((dato) => {
       const id = idPorNombre[dato.habitos];
@@ -53,12 +63,88 @@ const HabitosPage = () => {
         marcados[`${dato.dias}-${id}`] = true;
       }
     });
-    setCompletados((prev) => ({ ...prev, ...marcados }));
-  }, [datosSemana, habitosValidos]);
+    return marcados;
+  }, [datosSemana, idPorNombre]);
+
+  // Al cargar: si hay datos en localStorage para esta semana, esos mandan;
+  // si no, se usa lo que trae la BD.
+  useEffect(() => {
+    if (habitosValidos.length === 0) return;
+
+    const guardados = cargar(semanaActual);
+    if (Object.keys(guardados).length > 0) {
+      setCompletados(guardados);
+      const { marcados, desmarcados } = calcularCambios(guardados, completadosBD);
+      setCambiosPendientes(marcados.length > 0 || desmarcados.length > 0);
+    } else {
+      setCompletados(completadosBD);
+      setCambiosPendientes(false);
+    }
+  }, [habitosValidos, semanaActual, completadosBD, cargar, calcularCambios]);
+
+  // Refs para que el listener de pagehide lea el estado mas reciente
+  const completadosRef = useRef(completados);
+  completadosRef.current = completados;
+  const cambiosPendientesRef = useRef(cambiosPendientes);
+  cambiosPendientesRef.current = cambiosPendientes;
+  const semanaRef = useRef(semanaActual);
+  semanaRef.current = semanaActual;
+
+  // ✅ Sincroniza los cambios pendientes con el backend
+  const aplicarSincronizacion = useCallback(
+    async (completadosLocal: Record<string, boolean>, bd: Record<string, boolean>, semana: string) => {
+      const { marcados, desmarcados } = calcularCambios(completadosLocal, bd);
+      if (marcados.length === 0 && desmarcados.length === 0) {
+        setCambiosPendientes(false);
+        return { success: true, message: "Sin cambios" };
+      }
+      const resultado = await sincronizar(semana, marcados, desmarcados);
+      if (resultado.success) {
+        limpiar(semana);
+        setCambiosPendientes(false);
+      }
+      return resultado;
+    },
+    [calcularCambios, sincronizar, limpiar],
+  );
+
+  // ✅ Botón manual de guardado
+  const handleSincronizar = async () => {
+    setSincronizando(true);
+    try {
+      const resultado = await aplicarSincronizacion(
+        completadosRef.current,
+        completadosBD,
+        semanaRef.current,
+      );
+      console.log("Resultado sincronizacion manual:", resultado);
+    } finally {
+      setSincronizando(false);
+    }
+  };
+
+  // ✅ Al cerrar o recargar la página: enviar con sendBeacon si hay cambios
+  useEffect(() => {
+    const manejarPageHide = () => {
+      if (!cambiosPendientesRef.current) return;
+      const { marcados, desmarcados } = calcularCambios(
+        completadosRef.current,
+        completadosBD,
+      );
+      if (marcados.length > 0 || desmarcados.length > 0) {
+        sincronizarBeacon(semanaRef.current, marcados, desmarcados);
+      }
+    };
+    window.addEventListener("pagehide", manejarPageHide);
+    return () => window.removeEventListener("pagehide", manejarPageHide);
+  }, [calcularCambios, completadosBD, sincronizarBeacon]);
 
   const toggle = (dia: string, habitoId: number) => {
     const clave = `${dia}-${habitoId}`;
-    setCompletados((prev) => ({ ...prev, [clave]: !prev[clave] }));
+    const nuevoEstado = { ...completados, [clave]: !completados[clave] };
+    setCompletados(nuevoEstado);
+    guardar(semanaActual, nuevoEstado);
+    setCambiosPendientes(true);
   };
 
   if (!habitosValidos || habitosValidos.length === 0) {
@@ -79,12 +165,30 @@ const HabitosPage = () => {
           <p className="text-emerald-600 mt-1">
             Marca los hábitos que cumpliste cada día
           </p>
+          {cambiosPendientes && (
+            <span className="text-sm text-red-600 mt-2 inline-block">
+              ⚠️ Cambios no guardados - se sincronizarán al recargar o cerrar
+            </span>
+          )}
         </div>
-        {habitosValidos.length > 0 && (
-          <div className="text-sm text-emerald-700 bg-emerald-100 rounded-full px-4 py-2 font-medium">
-            {habitosValidos.length} hábitos
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {habitosValidos.length > 0 && (
+            <div className="text-sm text-emerald-700 bg-emerald-100 rounded-full px-4 py-2 font-medium">
+              {habitosValidos.length} hábitos
+            </div>
+          )}
+          <button
+            onClick={handleSincronizar}
+            disabled={!cambiosPendientes || sincronizando}
+            className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 disabled:opacity-50 transition"
+          >
+            {sincronizando
+              ? "Guardando..."
+              : cambiosPendientes
+                ? "Guardar cambios"
+                : "Cambios guardados"}
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-emerald-200 overflow-hidden shadow-lg">

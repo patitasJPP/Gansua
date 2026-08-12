@@ -1,5 +1,3 @@
-import React from "react";
-
 export const Navbar = () => {
   return (
     <nav className="h-14 bg-emerald-200 text-emerald-900 flex items-center px-6 gap-8 shadow-sm">
