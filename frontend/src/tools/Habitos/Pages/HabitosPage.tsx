@@ -1,4 +1,16 @@
 import { Fragment, useEffect, useState, useMemo, useRef, useCallback } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import {
+  CalendarCheck2,
+  Check,
+  CloudUpload,
+  Loader2,
+  Pill,
+  Plus,
+  Trash2,
+  TriangleAlert,
+  X,
+} from "lucide-react";
 import { useHabitos } from "../hook/useHabitos";
 import { useDatosSemana } from "../hook/useDatosSemana";
 import { useHabitosLocalStorage } from "../hook/useHabitosLocalStorage";
@@ -31,6 +43,10 @@ const HabitosPage = () => {
   const [guardandoHabito, setGuardandoHabito] = useState(false);
   const [mensajeError, setMensajeError] = useState("");
   const [eliminandoId, setEliminandoId] = useState<number | null>(null);
+  const [confirmarEliminar, setConfirmarEliminar] = useState<{
+    id: number;
+    nombre: string;
+  } | null>(null);
 
   const { cargar, guardar, limpiar } = useHabitosLocalStorage();
   const { calcularCambios, sincronizar, sincronizarBeacon } = useSincronizacion();
@@ -183,14 +199,7 @@ const HabitosPage = () => {
     }
   };
 
-  const handleEliminarHabito = async (id: number, nombre: string) => {
-    if (
-      !window.confirm(
-        `¿Eliminar el hábito "${capitalizar(nombre)}"? Se borrará también su historial de la semana.`,
-      )
-    ) {
-      return;
-    }
+  const handleEliminarHabito = async (id: number) => {
     setEliminandoId(id);
     try {
       await habitosService.eliminar(id);
@@ -213,47 +222,75 @@ const HabitosPage = () => {
 
   if (!habitosValidos || habitosValidos.length === 0) {
     return (
-      <div className="min-h-screen bg-emerald-50 p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-50 p-8 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-emerald-600 text-lg">Cargando hábitos...</p>
+          <Loader2 className="w-8 h-8 text-brand-600 animate-spin mx-auto" />
+          <p className="text-brand-600 mt-3 text-lg">Cargando hábitos...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-emerald-50 p-8">
-      <div className="mb-8 flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-brand-50 to-brand-100/60 p-8">
+      {/* CABECERA */}
+      <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-emerald-800">Mis Hábitos</h1>
-          <p className="text-emerald-600 mt-1">
-            Marca los hábitos que cumpliste cada día
-          </p>
-          {cambiosPendientes && (
-            <span className="text-sm text-red-600 mt-2 inline-block">
-              ⚠️ Cambios no guardados - se sincronizarán al recargar o cerrar
-            </span>
-          )}
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-600/30">
+              <CalendarCheck2 className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-brand-900">Mis Hábitos</h1>
+              <p className="text-brand-700 mt-0.5">
+                Marca los hábitos que cumpliste cada día
+              </p>
+            </div>
+          </div>
+          <AnimatePresence>
+            {cambiosPendientes && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <span className="mt-2 inline-flex items-center gap-1.5 text-sm text-amber-700 bg-amber-100 px-3 py-1 rounded-full font-medium">
+                  <TriangleAlert className="w-4 h-4" />
+                  Cambios sin guardar - se sincronizarán al recargar o cerrar
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           {habitosValidos.length > 0 && (
-            <div className="text-sm text-emerald-700 bg-emerald-100 rounded-full px-4 py-2 font-medium">
+            <div className="inline-flex items-center gap-2 text-sm text-brand-700 bg-brand-100 rounded-full px-4 py-2 font-medium">
+              <Pill className="w-4 h-4" />
               {habitosValidos.length} hábitos
             </div>
           )}
           <button
             type="button"
             onClick={abrirModal}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-semibold shadow-lg shadow-emerald-600/30 hover:from-emerald-700 hover:to-emerald-600 transition"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 text-white font-semibold shadow-lg shadow-brand-600/30 hover:from-brand-700 hover:to-brand-600 transition cursor-pointer"
           >
-            <span className="mr-1">+</span> Agregar hábito
+            <Plus className="w-4 h-4" strokeWidth={3} />
+            Agregar hábito
           </button>
           <button
             type="button"
             onClick={handleSincronizar}
             disabled={!cambiosPendientes || sincronizando}
-            className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 disabled:opacity-50 transition"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
           >
+            {sincronizando ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : cambiosPendientes ? (
+              <CloudUpload className="w-4 h-4" />
+            ) : (
+              <Check className="w-4 h-4" />
+            )}
             {sincronizando
               ? "Guardando..."
               : cambiosPendientes
@@ -263,146 +300,242 @@ const HabitosPage = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-emerald-200 overflow-hidden shadow-lg">
-        <div className="grid grid-cols-[190px_repeat(7,1fr)]">
-          {/* Esquina superior izquierda */}
-          <div className="p-4 bg-emerald-700 text-white font-semibold">
-            Hábito
-          </div>
-
-          {/* Días en la parte superior */}
-          {dias.map((dia) => (
-            <div
-              key={`dia-${dia}`}
-              className="p-4 bg-emerald-700 text-white font-semibold text-center"
-            >
-              {capitalizar(dia)}
+      {/* TABLA DE LA SEMANA */}
+      <div className="tarjeta overflow-hidden">
+        <div className="overflow-x-auto">
+          <div className="min-w-[900px] grid grid-cols-[190px_repeat(7,1fr)]">
+            {/* Esquina superior izquierda */}
+            <div className="p-4 bg-brand-700 text-white font-semibold sticky left-0 z-10">
+              Hábito
             </div>
-          ))}
 
-          {/* Hábitos a la izquierda con sus casillas */}
-          {habitosValidos.map((habito) => (
-            <Fragment key={`habito-${habito.id}`}>
-              <div className="p-4 border-t border-emerald-200 text-emerald-800 font-medium flex items-center justify-between gap-2">
-                <span>{capitalizar(habito.habitos)}</span>
-                <button
-                  type="button"
-                  onClick={() => handleEliminarHabito(habito.id, habito.habitos)}
-                  disabled={eliminandoId === habito.id}
-                  className="w-7 h-7 shrink-0 flex items-center justify-center rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition disabled:opacity-50 cursor-pointer"
-                  title={`Eliminar ${habito.habitos}`}
-                >
-                  {eliminandoId === habito.id ? (
-                    <span className="w-4 h-4 border-2 border-red-300 border-t-red-500 rounded-full animate-spin" />
-                  ) : (
-                    <span className="text-sm leading-none">✕</span>
-                  )}
-                </button>
+            {/* Días en la parte superior */}
+            {dias.map((dia) => (
+              <div
+                key={`dia-${dia}`}
+                className="p-4 bg-brand-700 text-white font-semibold text-center"
+              >
+                {capitalizar(dia)}
               </div>
+            ))}
 
-              {dias.map((dia) => {
-                const completado = completados[`${dia}-${habito.id}`];
-                return (
+            {/* Hábitos a la izquierda con sus casillas */}
+            {habitosValidos.map((habito) => (
+              <Fragment key={`habito-${habito.id}`}>
+                <div className="p-4 border-t border-brand-100 text-brand-800 font-medium flex items-center justify-between gap-2 bg-white sticky left-0 z-10">
+                  <span>{capitalizar(habito.habitos)}</span>
                   <button
                     type="button"
-                    key={`${habito.id}-${dia}`}
-                    onClick={() => toggle(dia, habito.id)}
-                    className="p-4 border-t border-emerald-200 flex items-center justify-center hover:bg-emerald-50 transition cursor-pointer"
-                    title={completado ? "Completado" : "Pendiente"}
+                    onClick={() =>
+                      setConfirmarEliminar({ id: habito.id, nombre: habito.habitos })
+                    }
+                    disabled={eliminandoId === habito.id}
+                    className="w-7 h-7 shrink-0 flex items-center justify-center rounded-md text-brand-300 hover:bg-red-50 hover:text-red-500 transition disabled:opacity-50 cursor-pointer"
+                    title={`Eliminar ${habito.habitos}`}
                   >
-                    {completado ? (
-                      <span className="w-6 h-6 rounded-md bg-emerald-700 flex items-center justify-center shadow-sm">
-                        <span className="text-white text-sm leading-none">
-                          ✓
-                        </span>
-                      </span>
+                    {eliminandoId === habito.id ? (
+                      <Loader2 className="w-4 h-4 text-brand-400 animate-spin" />
                     ) : (
-                      <span className="w-6 h-6 rounded-md border-2 border-emerald-300" />
+                      <Trash2 className="w-4 h-4" />
                     )}
                   </button>
-                );
-              })}
-            </Fragment>
-          ))}
+                </div>
+
+                {dias.map((dia) => {
+                  const completado = completados[`${dia}-${habito.id}`];
+                  return (
+                    <button
+                      type="button"
+                      key={`${habito.id}-${dia}`}
+                      onClick={() => toggle(dia, habito.id)}
+                      className="p-4 border-t border-brand-100 flex items-center justify-center hover:bg-brand-50 transition cursor-pointer"
+                      title={completado ? "Completado" : "Pendiente"}
+                    >
+                      <AnimatePresence mode="wait" initial={false}>
+                        {completado ? (
+                          <motion.span
+                            key="completado"
+                            initial={{ scale: 0, rotate: -30 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            exit={{ scale: 0, rotate: 30 }}
+                            transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                            className="w-6 h-6 rounded-md bg-brand-600 flex items-center justify-center shadow-sm"
+                          >
+                            <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                          </motion.span>
+                        ) : (
+                          <motion.span
+                            key="pendiente"
+                            initial={{ scale: 0.6, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.6, opacity: 0 }}
+                            className="w-6 h-6 rounded-md border-2 border-brand-300"
+                          />
+                        )}
+                      </AnimatePresence>
+                    </button>
+                  );
+                })}
+              </Fragment>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Modal para agregar un hábito */}
-      {modalAbierto && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-          onClick={() => setModalAbierto(false)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
-            onClick={(e) => e.stopPropagation()}
+      <AnimatePresence>
+        {modalAbierto && (
+          <motion.div
+            key="modal-agregar"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-brand-950/50 backdrop-blur-sm p-4"
+            onClick={() => setModalAbierto(false)}
           >
-            <div className="flex items-start justify-between mb-5">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-emerald-600/30">
-                  +
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              transition={{ type: "spring", stiffness: 350, damping: 30 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-600 to-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-600/30">
+                    <Plus className="w-6 h-6" strokeWidth={3} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-brand-900">
+                      Nuevo hábito
+                    </h2>
+                    <p className="text-sm text-brand-600">
+                      Agrega un hábito a tu rutina
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setModalAbierto(false)}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg text-brand-400 hover:bg-brand-50 hover:text-brand-700 transition cursor-pointer"
+                  title="Cerrar"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <label className="block text-sm font-medium text-brand-800 mb-1.5">
+                Nombre del hábito
+              </label>
+              <input
+                type="text"
+                autoFocus
+                value={nuevoHabito}
+                onChange={(e) => {
+                  setNuevoHabito(e.target.value);
+                  if (mensajeError) setMensajeError("");
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleAgregarHabito();
+                }}
+                placeholder="Ej: leer, meditar, correr..."
+                className="w-full px-4 py-2.5 rounded-lg border border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-brand-900 placeholder:text-brand-300 transition"
+              />
+
+              {mensajeError && (
+                <p className="mt-2 text-sm text-red-600">{mensajeError}</p>
+              )}
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setModalAbierto(false)}
+                  className="px-4 py-2 rounded-lg text-brand-700 bg-brand-50 hover:bg-brand-100 font-medium transition cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAgregarHabito}
+                  disabled={guardandoHabito}
+                  className="px-5 py-2 rounded-lg bg-brand-600 text-white font-medium hover:bg-brand-700 shadow-lg shadow-brand-600/30 disabled:opacity-50 transition cursor-pointer"
+                >
+                  {guardandoHabito ? "Guardando..." : "Guardar hábito"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirmación para eliminar un hábito */}
+      <AnimatePresence>
+        {confirmarEliminar && (
+          <motion.div
+            key="modal-eliminar"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-brand-950/50 backdrop-blur-sm p-4"
+            onClick={() => setConfirmarEliminar(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              transition={{ type: "spring", stiffness: 350, damping: 30 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-11 h-11 rounded-xl bg-red-100 flex items-center justify-center text-red-600">
+                  <Trash2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-emerald-900">
-                    Nuevo hábito
+                  <h2 className="text-lg font-bold text-brand-900">
+                    Eliminar hábito
                   </h2>
-                  <p className="text-sm text-emerald-600">
-                    Agrega un hábito a tu rutina
+                  <p className="text-sm text-brand-600">
+                    Se borrará también su historial de la semana
                   </p>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setModalAbierto(false)}
-                className="text-emerald-400 hover:text-emerald-700 transition text-xl leading-none cursor-pointer"
-                title="Cerrar"
-              >
-                ✕
-              </button>
-            </div>
 
-            <label className="block text-sm font-medium text-emerald-800 mb-1.5">
-              Nombre del hábito
-            </label>
-            <input
-              type="text"
-              autoFocus
-              value={nuevoHabito}
-              onChange={(e) => {
-                setNuevoHabito(e.target.value);
-                if (mensajeError) setMensajeError("");
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleAgregarHabito();
-              }}
-              placeholder="Ej: leer, meditar, correr..."
-              className="w-full px-4 py-2.5 rounded-lg border border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-emerald-900 placeholder:text-emerald-300 transition"
-            />
+              <p className="text-brand-800">
+                ¿Eliminar el hábito{" "}
+                <span className="font-semibold">
+                  "{capitalizar(confirmarEliminar.nombre)}"
+                </span>
+                ?
+              </p>
 
-            {mensajeError && (
-              <p className="mt-2 text-sm text-red-600">{mensajeError}</p>
-            )}
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setModalAbierto(false)}
-                className="px-4 py-2 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 font-medium transition cursor-pointer"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleAgregarHabito}
-                disabled={guardandoHabito}
-                className="px-5 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 shadow-lg shadow-emerald-600/30 disabled:opacity-50 transition cursor-pointer"
-              >
-                {guardandoHabito ? "Guardando..." : "Guardar hábito"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setConfirmarEliminar(null)}
+                  className="px-4 py-2 rounded-lg text-brand-700 bg-brand-50 hover:bg-brand-100 font-medium transition cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const { id } = confirmarEliminar;
+                    setConfirmarEliminar(null);
+                    handleEliminarHabito(id);
+                  }}
+                  disabled={eliminandoId === confirmarEliminar.id}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 shadow-lg shadow-red-600/30 disabled:opacity-50 transition cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Eliminar
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
