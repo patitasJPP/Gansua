@@ -15,6 +15,12 @@ public class EstadisticasResumen {
     private double promedioPorDia;
     private String mejorDia;
     private String mejorHabito;
-    private long rachaActual;
-    private long rachaMaxima;
+    private double consistenciaPromedio;
+    private long diasAbstinencia;
+    private long habitosAbstinencia;
+    private long diasSinRegistrar;
+    private double consistenciaTrend;
+    private double tasaRecuperacionGlobal;
+    private MejorHabitoSemana mejorHabitoSemana;
+    private MejorRachaEvitacion mejorRachaEvitacion;
 }

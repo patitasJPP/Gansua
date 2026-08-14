@@ -23,12 +23,13 @@ public class ServiceHabitos {
 
     }
 
-    public Habito crearHabito(String nombre){
+    public Habito crearHabito(String nombre, boolean esAbstinencia){
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre del habito no puede estar vacio");
         }
         Habito nuevo = new Habito();
         nuevo.setHabitos(nombre.trim());
+        nuevo.setEsAbstinencia(esAbstinencia);
         return habitosRepository.save(nuevo);
     }
 

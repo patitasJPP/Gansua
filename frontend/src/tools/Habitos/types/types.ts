@@ -2,6 +2,8 @@
 export type Habito = {
   id: number;
   habitos: string;
+  // TRUE -> "no lo quiero hacer" (dejar/evitar), FALSE -> hábito normal
+  esAbstinencia: boolean;
 };
 
 //datos que nos entrega el filtro por semana
@@ -39,8 +41,80 @@ export type EstadisticasResumen = {
   promedioPorDia: number;
   mejorDia: string;
   mejorHabito: string;
+  consistenciaPromedio: number;
+  diasAbstinencia: number;
+  habitosAbstinencia: number;
+  diasSinRegistrar: number;
+  consistenciaTrend: number;
+  tasaRecuperacionGlobal: number;
+  mejorHabitoSemana: MejorHabitoSemana | null;
+  mejorRachaEvitacion: MejorRachaEvitacion | null;
+};
+
+//habito de abstinencia con la racha actual mas larga
+export type MejorRachaEvitacion = {
+  habitoId: number;
+  habito: string;
+  rachaActual: number;
+};
+
+//mejor hábito de la semana actual (nombre + %)
+export type MejorHabitoSemana = {
+  habitoId: number;
+  habito: string;
+  porcentaje: number;
+};
+
+//promedio de cumplimiento por habito = (marcas / dias con actividad) x 100
+export type CumplimientoHabito = {
+  habitoId: number;
+  habito: string;
+  total: number;
+  diasConActividad: number;
+  porcentaje: number;
+};
+
+//racha actual y maxima de cualquier hábito
+export type RachaHabito = {
+  habitoId: number;
+  habito: string;
+  esAbstinencia: boolean;
   rachaActual: number;
   rachaMaxima: number;
+  totalDias: number;
+};
+
+//habito con cumplimiento < 50% en la semana actual
+export type HabitoEnRiesgo = {
+  habitoId: number;
+  habito: string;
+  esAbstinencia: boolean;
+  porcentajeSemana: number;
+};
+
+//P(B se hizo | A se hizo) en el mismo dia, en %
+export type CorrelacionHabito = {
+  habitoA: string;
+  habitoB: string;
+  coOcurrencia: number;
+};
+
+//tasa de recuperacion por habito (tras fallar, vuelve al siguiente dia)
+export type TasaRecuperacion = {
+  habitoId: number;
+  habito: string;
+  tasa: number;
+  diasFallados: number;
+  recuperaciones: number;
+};
+
+//racha actual y maxima de un hábito de abstinencia
+export type RachaAbstinencia = {
+  habitoId: number;
+  habito: string;
+  rachaActual: number;
+  rachaMaxima: number;
+  totalDias: number;
 };
 
 //marcas por dia de la semana

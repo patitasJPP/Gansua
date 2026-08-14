@@ -3,6 +3,7 @@ package com.backend.organisador.services;
 import com.backend.organisador.entities.Periodo;
 import com.backend.organisador.repocitory.PeriodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -17,6 +18,8 @@ public class PeriodoService {
 
     @Autowired
     private PeriodoRepository periodoRepository;
+
+    private final Object lock = new Object();
 
     // Verificar semana con LocalDate
     public boolean verificarSemana(LocalDate fecha) {
@@ -48,18 +51,32 @@ public class PeriodoService {
             return periodo.get();
         }
 
-        // Calcula el lunes de la semana actual
-        LocalDate lunes = fecha.toLocalDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        LocalDate proximoLunes = lunes.plusWeeks(1);
+        // Evita que dos peticiones simultáneas creen el mismo periodo (doble inserción)
+        synchronized (lock) {
+            periodo = periodoRepository.findSemanaByFecha(fecha);
 
-        // Crea nuevo período
-        Periodo nuevo = new Periodo();
-        nuevo.setSemana("semana " + (periodoRepository.count() + 1));
-        nuevo.setFechaInicio(lunes.atStartOfDay());
-        nuevo.setFechaFin(proximoLunes.atStartOfDay());
-        nuevo.setTotalHabitos(0);
+            if (periodo.isPresent()) {
+                return periodo.get();
+            }
 
-        // Guarda en BD
-        return periodoRepository.save(nuevo);
+            // Calcula el lunes de la semana actual
+            LocalDate lunes = fecha.toLocalDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            LocalDate proximoLunes = lunes.plusWeeks(1);
+
+            // Crea nuevo período
+            Periodo nuevo = new Periodo();
+            nuevo.setSemana("semana " + (periodoRepository.count() + 1));
+            nuevo.setFechaInicio(lunes.atStartOfDay());
+            nuevo.setFechaFin(proximoLunes.atStartOfDay());
+            nuevo.setTotalHabitos(0);
+
+            // Guarda en BD
+            try {
+                return periodoRepository.save(nuevo);
+            } catch (DataIntegrityViolationException e) {
+                // Otro proceso ya creó el periodo: devuelve el existente
+                return periodoRepository.findSemanaByFecha(fecha).orElseThrow();
+            }
+        }
     }
 }

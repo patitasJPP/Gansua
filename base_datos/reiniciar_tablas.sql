@@ -1,0 +1,22 @@
+----------------------------------------------------
+-- SCRIPT: REINICIAR TABLAS (dejarlas sin contenido)
+-- Borra todo el contenido de las 4 tablas y reinicia
+-- los IDs (secuencias) para que vuelvan a empezar en 1.
+--
+-- ADVERTENCIA:
+--   `dias` es una tabla de REFERENCIA (lunes..domingo).
+--   Si la vacías, la app NO podrá crear marcas nuevas
+--   hasta volver a sembrar los días. Para restaurarlos,
+--   descomenta el bloque al final (o ejecuta inserts.sql).
+----------------------------------------------------
+TRUNCATE TABLE habitos_echos, dias, habitos, periodos RESTART IDENTITY;
+
+-- (Opcional) Vuelve a sembrar los días de la semana:
+-- INSERT INTO dias (dias) VALUES
+-- ('lunes'),
+-- ('martes'),
+-- ('miercoles'),
+-- ('jueves'),
+-- ('viernes'),
+-- ('sabado'),
+-- ('domingo');

@@ -3,6 +3,7 @@ package com.backend.organisador.repocitory;
 import com.backend.organisador.entities.Dias;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,6 +29,17 @@ public interface EstadisticasRepository extends JpaRepository<Dias, Long> {
         String getDia();
         String getHabito();
         Long getTotal();
+    }
+
+    interface FechaPorHabito {
+        Long getHabitoId();
+        LocalDate getFecha();
+    }
+
+    interface DetalleMarca {
+        Long getHabitoId();
+        String getHabito();
+        LocalDate getFecha();
     }
 
     @Query(value = """
@@ -89,6 +101,63 @@ public interface EstadisticasRepository extends JpaRepository<Dias, Long> {
     @Query(value = "SELECT COUNT(DISTINCT fecha_realisado) FROM habitos_echos", nativeQuery = true)
     long contarDiasConActividad();
 
+    @Query(value = "SELECT COUNT(DISTINCT fecha_realisado) FROM habitos_echos WHERE fecha_realisado BETWEEN :inicio AND :fin", nativeQuery = true)
+    long contarDiasConActividadEnRango(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
+
     @Query(value = "SELECT DISTINCT fecha_realisado FROM habitos_echos ORDER BY fecha_realisado", nativeQuery = true)
     List<LocalDate> obtenerFechasMarcadas();
+
+    // ============================================================
+    // HÁBITOS DE ABSTINENCIA (es_abstinencia = TRUE)
+    // ============================================================
+
+    @Query(value = """
+            SELECT he.id_habitos AS habitoId, he.fecha_realisado AS fecha
+            FROM habitos_echos he
+            JOIN habitos h ON h.id = he.id_habitos
+            WHERE h.es_abstinencia = TRUE
+            ORDER BY he.id_habitos, he.fecha_realisado
+            """, nativeQuery = true)
+    List<FechaPorHabito> fechasPorHabitoAbstinente();
+
+    @Query(value = """
+            SELECT COUNT(*)
+            FROM habitos_echos he
+            JOIN habitos h ON h.id = he.id_habitos
+            WHERE h.es_abstinencia = TRUE
+            """, nativeQuery = true)
+    long contarDiasAbstinencia();
+
+    @Query(value = "SELECT COUNT(*) FROM habitos h WHERE h.es_abstinencia = TRUE", nativeQuery = true)
+    long contarHabitosAbstinencia();
+
+    // ============================================================
+    // KPIs DE ANÁLISIS (cumplimiento, rachas, correlación, etc.)
+    // ============================================================
+
+    @Query(value = """
+            SELECT h.habitos AS habito, COUNT(he.id) AS total
+            FROM habitos h
+            LEFT JOIN habitos_echos he ON he.id_habitos = h.id
+              AND he.fecha_realisado BETWEEN :inicio AND :fin
+            GROUP BY h.id, h.habitos
+            ORDER BY h.id
+            """, nativeQuery = true)
+    List<PorHabito> marcasPorHabitoEnRango(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
+
+    @Query(value = """
+            SELECT he.id_habitos AS habitoId, h.habitos AS habito, he.fecha_realisado AS fecha
+            FROM habitos_echos he
+            JOIN habitos h ON h.id = he.id_habitos
+            ORDER BY he.id_habitos, he.fecha_realisado
+            """, nativeQuery = true)
+    List<DetalleMarca> marcasDetalladas();
+
+    @Query(value = """
+            SELECT DISTINCT he.id_habitos AS habitoId, he.fecha_realisado AS fecha
+            FROM habitos_echos he
+            JOIN habitos h ON h.id = he.id_habitos
+            ORDER BY he.id_habitos, he.fecha_realisado
+            """, nativeQuery = true)
+    List<FechaPorHabito> fechasPorHabito();
 }

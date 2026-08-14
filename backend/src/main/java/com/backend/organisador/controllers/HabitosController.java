@@ -41,7 +41,8 @@ public class HabitosController {
     @CrossOrigin(origins = "*")
     public ResponseEntity<?> crearHabito(@RequestBody Habito habitos){
         try {
-            Habito nuevo = servicioHabitos.crearHabito(habitos.getHabitos());
+            boolean esAbstinencia = Boolean.TRUE.equals(habitos.getEsAbstinencia());
+            Habito nuevo = servicioHabitos.crearHabito(habitos.getHabitos(), esAbstinencia);
             return ResponseEntity.ok(nuevo);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

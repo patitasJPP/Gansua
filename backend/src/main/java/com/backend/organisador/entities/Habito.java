@@ -16,4 +16,7 @@ public class Habito {
     @Column(name= "habitos")
     private  String habitos;
 
+    @Column(name = "es_abstinencia")
+    private Boolean esAbstinencia;
+
 }
