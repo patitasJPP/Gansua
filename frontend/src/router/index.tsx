@@ -3,7 +3,6 @@ import { createBrowserRouter } from "react-router-dom";
 import { MainLayout } from "../layouts/mainLayout";
 import Index from "../Pages/Habits";
 import Habitos from "../tools/Habitos/Pages/HabitosPage";
-import { PlaceholderPage } from "../tools/Habitos/Pages/PlaceholderPage";
 import { MainLayoutHabitos } from "../tools/Habitos/layouts/MainLayoutHabitos";
 
 const EstadisticasPage = lazy(
@@ -34,14 +33,6 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Habitos /> },
           { path: "estadisticas", element: estadisticas },
-          {
-            path: "notas",
-            element: <PlaceholderPage titulo="Notas" descripcion="Próximamente" />,
-          },
-          {
-            path: "general",
-            element: <PlaceholderPage titulo="General" descripcion="Próximamente" />,
-          },
         ],
       },
     ],

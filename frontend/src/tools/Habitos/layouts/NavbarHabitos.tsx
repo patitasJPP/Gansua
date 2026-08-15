@@ -1,11 +1,9 @@
 import { NavLink } from "react-router-dom";
-import { BarChart3, CalendarCheck2, NotebookPen, Settings2 } from "lucide-react";
+import { BarChart3, CalendarCheck2 } from "lucide-react";
 
 const links = [
   { to: "/habitos", etiqueta: "Hábitos", icono: CalendarCheck2 },
   { to: "/habitos/estadisticas", etiqueta: "Estadísticas", icono: BarChart3 },
-  { to: "/habitos/notas", etiqueta: "Notas", icono: NotebookPen },
-  { to: "/habitos/general", etiqueta: "General", icono: Settings2 },
 ];
 
 export const Navbar = () => {
