@@ -78,6 +78,18 @@ const leerTemaInicial = (): Tema => {
   return TEMAS[0];
 };
 
+/** Expande las referencias var(--...) de un fondo a los colores concretos
+ *  del tema actual, para que el valor quede autocontenido y no dependa de
+ *  la resolución de variables anidadas dentro de --sidebar-imagen. */
+const expandirVars = (valor: string): string => {
+  return valor.replace(/var\(\s*(--[\w-]+)\s*\)/g, (coincidencia, variable: string) => {
+    const resuelto = getComputedStyle(
+      document.documentElement,
+    ).getPropertyValue(variable).trim();
+    return resuelto || coincidencia;
+  });
+};
+
 const leerFondoInicial = (): FondoPersonalizacion => {
   try {
     const guardado = localStorage.getItem(CLAVE_FONDO);
@@ -119,7 +131,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         ? "none"
         : fondo.imagen.startsWith("data:")
           ? `url("${fondo.imagen}")`
-          : fondo.imagen;
+          : expandirVars(fondo.imagen);
 
     raiz.style.setProperty("--sidebar-imagen", valorImagen);
     raiz.style.setProperty("--sidebar-opacidad", String(fondo.opacidad));
@@ -130,7 +142,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     } catch {
       // sin persistencia (p. ej. imagen muy grande)
     }
-  }, [fondo]);
+  }, [fondo, tema]);
 
   const cambiarTema = useCallback((id: string) => {
     const encontrado = TEMAS.find((t) => t.id === id);
