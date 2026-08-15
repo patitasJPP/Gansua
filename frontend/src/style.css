@@ -4,6 +4,8 @@
    Sistema de temas: las utilidades `brand-*` apuntan a
    variables runtime (--brand-*), que se redefinen por paleta
    según el atributo data-tema en <html>.
+   También se exponen colores semánticos (primario, secundario,
+   fondo, texto, completado) para consumo directo.
    ============================================================ */
 @theme {
   --color-brand-50: var(--brand-50);
@@ -17,7 +19,28 @@
   --color-brand-800: var(--brand-800);
   --color-brand-900: var(--brand-900);
   --color-brand-950: var(--brand-950);
+
+  --color-primario: var(--primario);
+  --color-secundario: var(--secundario);
+  --color-fondo: var(--fondo);
+  --color-texto: var(--texto);
+  --color-completado: var(--completado);
 }
+
+/* ============================================================
+   Variables del fondo del sidebar (se controlan desde el panel
+   de personalización en runtime).
+   ============================================================ */
+:root {
+  --sidebar-imagen: none;
+  --sidebar-opacidad: 0.45;
+  --sidebar-escala: 1.2;
+  --sidebar-posicion: center;
+}
+
+/* ============================================================
+   Paletas (10 temas)
+   ============================================================ */
 
 /* Paleta por defecto (Esmeralda) */
 :root,
@@ -33,6 +56,11 @@
   --brand-800: #065f46;
   --brand-900: #064e3b;
   --brand-950: #022c22;
+  --primario: #059669;
+  --secundario: #14b8a6;
+  --fondo: #ecfdf5;
+  --texto: #064e3b;
+  --completado: #10b981;
 }
 
 [data-tema="azul"] {
@@ -47,6 +75,11 @@
   --brand-800: #1e40af;
   --brand-900: #1e3a8a;
   --brand-950: #172554;
+  --primario: #2563eb;
+  --secundario: #06b6d4;
+  --fondo: #eff6ff;
+  --texto: #1e3a8a;
+  --completado: #3b82f6;
 }
 
 [data-tema="violeta"] {
@@ -61,6 +94,11 @@
   --brand-800: #5b21b6;
   --brand-900: #4c1d95;
   --brand-950: #2e1065;
+  --primario: #7c3aed;
+  --secundario: #ec4899;
+  --fondo: #f5f3ff;
+  --texto: #4c1d95;
+  --completado: #8b5cf6;
 }
 
 [data-tema="fucsia"] {
@@ -75,6 +113,11 @@
   --brand-800: #86198f;
   --brand-900: #701a75;
   --brand-950: #4a044e;
+  --primario: #c026d3;
+  --secundario: #8b5cf6;
+  --fondo: #fdf4ff;
+  --texto: #701a75;
+  --completado: #d946ef;
 }
 
 [data-tema="rosa"] {
@@ -89,6 +132,11 @@
   --brand-800: #9f1239;
   --brand-900: #881337;
   --brand-950: #4c0519;
+  --primario: #e11d48;
+  --secundario: #f59e0b;
+  --fondo: #fff1f2;
+  --texto: #881337;
+  --completado: #f43f5e;
 }
 
 [data-tema="ambar"] {
@@ -103,6 +151,11 @@
   --brand-800: #92400e;
   --brand-900: #78350f;
   --brand-950: #451a03;
+  --primario: #d97706;
+  --secundario: #0d9488;
+  --fondo: #fffbeb;
+  --texto: #78350f;
+  --completado: #f59e0b;
 }
 
 [data-tema="teal"] {
@@ -117,6 +170,68 @@
   --brand-800: #115e59;
   --brand-900: #134e4a;
   --brand-950: #042f2e;
+  --primario: #0d9488;
+  --secundario: #3b82f6;
+  --fondo: #f0fdfa;
+  --texto: #134e4a;
+  --completado: #14b8a6;
+}
+
+[data-tema="naturaleza"] {
+  --brand-50: #f7fee7;
+  --brand-100: #ecfccb;
+  --brand-200: #d9f99d;
+  --brand-300: #bef264;
+  --brand-400: #a3e635;
+  --brand-500: #84cc16;
+  --brand-600: #65a30d;
+  --brand-700: #4d7c0f;
+  --brand-800: #3f6212;
+  --brand-900: #365314;
+  --brand-950: #1a2e05;
+  --primario: #4d7c0f;
+  --secundario: #ca8a04;
+  --fondo: #f7fee7;
+  --texto: #365314;
+  --completado: #65a30d;
+}
+
+[data-tema="atardecer"] {
+  --brand-50: #fff7ed;
+  --brand-100: #ffedd5;
+  --brand-200: #fed7aa;
+  --brand-300: #fdba74;
+  --brand-400: #fb923c;
+  --brand-500: #f97316;
+  --brand-600: #ea580c;
+  --brand-700: #c2410c;
+  --brand-800: #9a3412;
+  --brand-900: #7c2d12;
+  --brand-950: #431407;
+  --primario: #ea580c;
+  --secundario: #be123c;
+  --fondo: #fff7ed;
+  --texto: #7c2d12;
+  --completado: #f97316;
+}
+
+[data-tema="minimalista"] {
+  --brand-50: #f8fafc;
+  --brand-100: #f1f5f9;
+  --brand-200: #e2e8f0;
+  --brand-300: #cbd5e1;
+  --brand-400: #94a3b8;
+  --brand-500: #64748b;
+  --brand-600: #475569;
+  --brand-700: #334155;
+  --brand-800: #1e293b;
+  --brand-900: #0f172a;
+  --brand-950: #020617;
+  --primario: #334155;
+  --secundario: #94a3b8;
+  --fondo: #f8fafc;
+  --texto: #0f172a;
+  --completado: #475569;
 }
 
 /* ============================================================
@@ -138,6 +253,11 @@ body * {
     fill 0.25s ease,
     stroke 0.25s ease,
     box-shadow 0.25s ease;
+}
+
+/* Rangos (sliders) con el color primario del tema activo */
+input[type="range"] {
+  accent-color: var(--primario);
 }
 
 /* ============================================================
