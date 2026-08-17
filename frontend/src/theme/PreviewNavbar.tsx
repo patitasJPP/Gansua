@@ -20,9 +20,9 @@ export const PreviewNavbar = () => {
           opacity: "var(--sidebar-opacidad)",
         }}
       />
-      {/* Capa de legibilidad (más clara que en el menú real para que se
-          aprecien los colores del fondo seleccionado) */}
-      <div aria-hidden className="absolute inset-0 bg-brand-50/55 backdrop-blur-sm" />
+      {/* Capa de legibilidad: misma que el menú real para que la vista
+          previa refleje exactamente la misma opacidad */}
+      <div aria-hidden className="absolute inset-0 bg-brand-50/85 backdrop-blur-xl" />
 
       <div className="relative z-10 h-full flex flex-col p-4">
         {/* Cuenta */}
