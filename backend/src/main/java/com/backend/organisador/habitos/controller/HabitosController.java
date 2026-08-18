@@ -78,9 +78,15 @@ public class HabitosController {
             List<HabitoMarcado> marcados = request.getMarcados();
             List<HabitoMarcado> desmarcados = request.getDesmarcados();
 
-            servicioDatosSemana.sincronizar(periodo, marcados, desmarcados);
+            int totalEnviados = (marcados != null ? marcados.size() : 0) + (desmarcados != null ? desmarcados.size() : 0);
+            int cambios = servicioDatosSemana.sincronizar(periodo, marcados, desmarcados);
 
-            return ResponseEntity.ok(new MensajeResponse(true, "Sincronizado exitosamente"));
+            if (totalEnviados > 0 && cambios == 0) {
+                System.out.println("== [CONTROLLER][WARN] Se enviaron " + totalEnviados + " cambios pero ninguno se guardo ==");
+                return ResponseEntity.ok(new MensajeResponse(false, "Ningun cambio se pudo guardar. Verifica que los dias y habitos existan en la BD."));
+            }
+
+            return ResponseEntity.ok(new MensajeResponse(true, "Sincronizado exitosamente (" + cambios + " cambios)"));
         } catch (Exception e) {
             System.out.println("== [CONTROLLER][ERROR] Fallo al sincronizar: " + e.getMessage() + " ==");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
