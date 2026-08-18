@@ -5,15 +5,19 @@ import {
   CalendarCheck2,
   Check,
   CloudUpload,
+  Flame,
   Loader2,
   Pill,
   Plus,
+  Trophy,
   Trash2,
   TriangleAlert,
+  Zap,
   X,
 } from "lucide-react";
 import { useHabitos } from "../hook/useHabitos";
 import { useDatosSemana } from "../hook/useDatosSemana";
+import { useEstadisticas } from "../hook/useEstadisticas";
 import { useHabitosLocalStorage } from "../hook/useHabitosLocalStorage";
 import { useSincronizacion } from "../hook/useSincronizacion";
 import { habitosService } from "../../../Services/habitos";
@@ -36,6 +40,7 @@ const capitalizar = (texto: string | undefined) => {
 const HabitosPage = () => {
   const [misHabitos, refrescarHabitos, cargandoHabitos] = useHabitos();
   const [datosSemana, refrescarDatosSemana] = useDatosSemana();
+  const { rachas } = useEstadisticas();
   const [completados, setCompletados] = useState<Record<string, boolean>>({});
   const [cambiosPendientes, setCambiosPendientes] = useState(false);
   const [sincronizando, setSincronizando] = useState(false);
@@ -450,6 +455,122 @@ const HabitosPage = () => {
             <span className="inline-flex items-center gap-1.5">
               <Ban className="w-3.5 h-3.5 text-rose-600" /> Hábito que quieres evitar
             </span>
+          </div>
+        </div>
+      )}
+
+      {/* SECCIÓN DE RACHAS POR HÁBITO */}
+      {rachas.length > 0 && (
+        <div className="mt-6 tarjeta p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/30">
+              <Flame className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-brand-900">
+                Rachas por hábito
+              </h2>
+              <p className="text-sm text-brand-600">
+                Tu mejor racha y cuánto te falta para superarla
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {rachas.map((r) => {
+              const porcentaje = r.rachaMaxima > 0
+                ? Math.min(100, Math.round((r.rachaActual / r.rachaMaxima) * 100))
+                : 0;
+              const superoRacha = r.rachaActual >= r.rachaMaxima && r.rachaActual > 0;
+              const diasRestantes = Math.max(0, r.rachaMaxima - r.rachaActual + 1);
+
+              return (
+                <div
+                  key={r.habitoId}
+                  className={`relative overflow-hidden rounded-2xl border p-5 ${
+                    r.esAbstinencia
+                      ? "bg-gradient-to-br from-rose-50 to-rose-100/40 border-rose-200/60"
+                      : superoRacha
+                        ? "bg-gradient-to-br from-emerald-50 to-emerald-100/40 border-emerald-200/60"
+                        : "bg-gradient-to-br from-brand-50 to-brand-100/40 border-brand-200/60"
+                  }`}
+                >
+                  <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-white/40" />
+                  <div className="relative">
+                    <div className="flex items-center gap-2 mb-3">
+                      {superoRacha ? (
+                        <Trophy className="w-4 h-4 text-emerald-600" />
+                      ) : (
+                        <Flame className={`w-4 h-4 ${r.esAbstinencia ? "text-rose-500" : "text-brand-500"}`} />
+                      )}
+                      <span className={`text-sm font-bold ${r.esAbstinencia ? "text-rose-800" : "text-brand-800"}`}>
+                        {capitalizar(r.habito)}
+                      </span>
+                      {r.esAbstinencia && (
+                        <span className="inline-flex items-center text-[10px] uppercase tracking-wide font-bold text-rose-600 bg-rose-100 rounded-full px-2 py-0.5">
+                          Evitar
+                        </span>
+                      )}
+                    </div>
+
+                    {superoRacha ? (
+                      <div className="mb-3">
+                        <div className="flex items-center gap-1.5 text-emerald-700">
+                          <Zap className="w-4 h-4" />
+                          <span className="text-xs font-bold uppercase tracking-wide">
+                            ¡Récord superado!
+                          </span>
+                        </div>
+                        <p className="text-2xl font-bold text-emerald-800 tabular-nums mt-1">
+                          {r.rachaActual} días
+                        </p>
+                        <p className="text-xs text-emerald-600 mt-0.5">
+                          Superaste tu racha de {r.rachaMaxima} días
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="mb-3">
+                        <p className="text-xs text-brand-600">Mejor racha</p>
+                        <p className={`text-2xl font-bold tabular-nums ${r.esAbstinencia ? "text-rose-800" : "text-brand-800"}`}>
+                          {r.rachaMaxima} días
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Barra de progreso */}
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className={`${r.esAbstinencia ? "text-rose-600" : superoRacha ? "text-emerald-600" : "text-brand-600"}`}>
+                          Racha actual: {r.rachaActual} días
+                        </span>
+                        <span className={`font-semibold ${r.esAbstinencia ? "text-rose-700" : superoRacha ? "text-emerald-700" : "text-brand-700"}`}>
+                          {porcentaje}%
+                        </span>
+                      </div>
+                      <div className={`h-2 rounded-full overflow-hidden ${r.esAbstinencia ? "bg-rose-100" : "bg-brand-100"}`}>
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            superoRacha
+                              ? "bg-gradient-to-r from-emerald-500 to-emerald-400"
+                              : r.esAbstinencia
+                                ? "bg-gradient-to-r from-rose-500 to-rose-400"
+                                : "bg-gradient-to-r from-brand-600 to-brand-500"
+                          }`}
+                          style={{ width: `${porcentaje}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <p className={`text-[11px] mt-2 ${r.esAbstinencia ? "text-rose-500" : superoRacha ? "text-emerald-500" : "text-brand-500"}`}>
+                      {superoRacha
+                        ? `Has superado tu récord de ${r.rachaMaxima} días. ¡Sigue así!`
+                        : r.rachaActual > 0
+                          ? `${diasRestantes} día${diasRestantes !== 1 ? "s" : ""} para superar tu mejor racha`
+                          : "Empieza hoy tu nueva racha"}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
