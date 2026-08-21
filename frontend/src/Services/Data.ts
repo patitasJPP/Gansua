@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = "https://gansua.onrender.com/api";
+//const API_URL = "https://gansua.onrender.com/api";
+const API_URL = "http://localhost:8080/api";
 export const apiService = {
   // GET: 'R' representa el tipo de la respuesta que esperas recibir
   async get<R>(url: string): Promise<R> {
