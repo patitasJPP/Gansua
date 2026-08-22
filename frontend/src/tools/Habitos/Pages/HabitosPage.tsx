@@ -54,6 +54,7 @@ const HabitosPage = () => {
     id: number;
     nombre: string;
   } | null>(null);
+  const [habitoActivoMobile, setHabitoActivoMobile] = useState(0);
 
   const { cargar, guardar, limpiar } = useHabitosLocalStorage();
   const { calcularCambios, sincronizar, sincronizarBeacon } = useSincronizacion();
@@ -331,7 +332,201 @@ const HabitosPage = () => {
           </button>
         </div>
       ) : (
-        <div className="tarjeta overflow-hidden">
+        <>
+          {/* ========== MOBILE: selector de hábito + vista vertical ========== */}
+          <div className="block sm:hidden">
+            {/* Pills selector */}
+            <div className="flex gap-2 overflow-x-auto pb-3 mb-4 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {habitosValidos.map((habito, idx) => {
+                const esAbstinencia = habito.esAbstinencia === true;
+                const activo = idx === habitoActivoMobile;
+                return (
+                  <button
+                    key={`pill-${habito.id}`}
+                    type="button"
+                    onClick={() => setHabitoActivoMobile(idx)}
+                    className={`snap-start shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-semibold transition cursor-pointer ${
+                      activo
+                        ? esAbstinencia
+                          ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30"
+                          : "bg-brand-600 text-white shadow-lg shadow-brand-600/30"
+                        : esAbstinencia
+                          ? "bg-rose-50 text-rose-700 border border-rose-200"
+                          : "bg-brand-50 text-brand-700 border border-brand-200"
+                    }`}
+                  >
+                    {esAbstinencia && <Ban className="w-4 h-4" />}
+                    {!esAbstinencia && <Check className="w-4 h-4" />}
+                    {capitalizar(habito.habitos)}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Card del hábito activo */}
+            {habitosValidos[habitoActivoMobile] && (() => {
+              const habito = habitosValidos[habitoActivoMobile];
+              const esAbstinencia = habito.esAbstinencia === true;
+              return (
+                <div className={`tarjeta overflow-hidden rounded-2xl border ${
+                  esAbstinencia ? "border-rose-200/60" : "border-brand-200/60"
+                }`}>
+                  {/* Header del hábito */}
+                  <div className={`px-4 py-3 flex items-center justify-between ${
+                    esAbstinencia
+                      ? "bg-gradient-to-r from-rose-50 to-rose-100/40"
+                      : "bg-gradient-to-r from-brand-50 to-brand-100/40"
+                  }`}>
+                    <div className="flex items-center gap-2 min-w-0">
+                      {esAbstinencia ? (
+                        <div className="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                          <Ban className="w-4 h-4" />
+                        </div>
+                      ) : (
+                        <div className="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center shrink-0">
+                          <Check className="w-4 h-4" />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <span className={`font-bold truncate block ${
+                          esAbstinencia ? "text-rose-900" : "text-brand-900"
+                        }`}>
+                          {capitalizar(habito.habitos)}
+                        </span>
+                        {esAbstinencia && (
+                          <span className="text-[10px] uppercase tracking-wide font-bold text-rose-600">
+                            Evitar
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setConfirmarEliminar({ id: habito.id, nombre: habito.habitos })
+                      }
+                      disabled={eliminandoId === habito.id}
+                      className="w-8 h-8 shrink-0 flex items-center justify-center rounded-lg text-brand-300 hover:bg-red-50 hover:text-red-500 transition disabled:opacity-50 cursor-pointer"
+                      title={`Eliminar ${habito.habitos}`}
+                    >
+                      {eliminandoId === habito.id ? (
+                        <Loader2 className="w-4 h-4 text-brand-400 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Lista vertical de días */}
+                  <div className="divide-y divide-brand-100">
+                    {dias.map((dia) => {
+                      const completado = completados[`${dia}-${habito.id}`];
+                      return (
+                        <button
+                          type="button"
+                          key={`${habito.id}-${dia}`}
+                          onClick={() => toggle(dia, habito.id)}
+                          className={`w-full px-4 py-3.5 flex items-center justify-between transition cursor-pointer ${
+                            esAbstinencia
+                              ? completado
+                                ? "bg-rose-50"
+                                : "hover:bg-rose-50/70"
+                              : completado
+                                ? "bg-brand-50/60"
+                                : "hover:bg-brand-50"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm font-semibold text-brand-800 w-20">
+                              {capitalizar(dia)}
+                            </span>
+                            <span className={`text-xs ${
+                              completado
+                                ? esAbstinencia ? "text-rose-600" : "text-brand-600"
+                                : "text-brand-400"
+                            }`}>
+                              {esAbstinencia
+                                ? completado ? "Lo evitaste" : "Pendiente"
+                                : completado ? "Completado" : "Pendiente"}
+                            </span>
+                          </div>
+                          <AnimatePresence mode="wait" initial={false}>
+                            {completado ? (
+                              <motion.span
+                                key="completado"
+                                initial={{ scale: 0, rotate: -30 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                exit={{ scale: 0, rotate: 30 }}
+                                transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                                className={`w-7 h-7 rounded-lg flex items-center justify-center shadow-sm ${
+                                  esAbstinencia ? "bg-rose-500" : "bg-brand-600"
+                                }`}
+                              >
+                                <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                              </motion.span>
+                            ) : (
+                              <motion.span
+                                key="pendiente"
+                                initial={{ scale: 0.6, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.6, opacity: 0 }}
+                                className={`w-7 h-7 rounded-lg border-2 ${
+                                  esAbstinencia ? "border-rose-300" : "border-brand-300"
+                                }`}
+                              />
+                            )}
+                          </AnimatePresence>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Navegación entre hábitos */}
+                  <div className="px-4 py-3 border-t border-brand-100 bg-brand-50/40 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setHabitoActivoMobile((i) => Math.max(0, i - 1))}
+                      disabled={habitoActivoMobile === 0}
+                      className="text-sm font-medium text-brand-600 hover:text-brand-800 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                    >
+                      ← Anterior
+                    </button>
+                    <span className="text-xs text-brand-400 tabular-nums">
+                      {habitoActivoMobile + 1} / {habitosValidos.length}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setHabitoActivoMobile((i) =>
+                          Math.min(habitosValidos.length - 1, i + 1),
+                        )
+                      }
+                      disabled={habitoActivoMobile >= habitosValidos.length - 1}
+                      className="text-sm font-medium text-brand-600 hover:text-brand-800 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                    >
+                      Siguiente →
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Leyenda mobile */}
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-brand-600">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-brand-600" /> Cumpliste
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-rose-500" /> Lo evitaste
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Ban className="w-3 h-3 text-rose-600" /> Evitar
+              </span>
+            </div>
+          </div>
+
+          {/* ========== DESKTOP: grid tradicional ========== */}
+          <div className="hidden sm:block tarjeta overflow-hidden">
           <div className="overflow-x-auto">
             <div className="min-w-[600px] sm:min-w-[750px] lg:min-w-[900px] grid grid-cols-[130px_repeat(7,1fr)] sm:grid-cols-[160px_repeat(7,1fr)] lg:grid-cols-[190px_repeat(7,1fr)]">
               {/* Esquina superior izquierda */}
@@ -457,6 +652,7 @@ const HabitosPage = () => {
             </span>
           </div>
         </div>
+        </>
       )}
 
       {/* SECCIÓN DE RACHAS POR HÁBITO */}
