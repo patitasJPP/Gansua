@@ -69,7 +69,7 @@ const EstadisticasPage = () => {
 
   if (!resumen) {
     return (
-      <div className="min-h-screen bg-brand-50 p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-50 p-4 sm:p-6 lg:p-8 flex items-center justify-center">
         <p className="text-brand-600 text-lg">Cargando estadísticas...</p>
       </div>
     );
@@ -87,13 +87,13 @@ const EstadisticasPage = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-brand-50 to-brand-100/60 p-8">
-      <div className="mb-8 flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-600/30">
-          <BarChart3 className="w-6 h-6" />
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-brand-50 to-brand-100/60 p-4 sm:p-6 lg:p-8">
+      <div className="mb-4 sm:mb-6 lg:mb-8 flex items-center gap-3">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-600/30">
+          <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-brand-900">Estadísticas</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-brand-900">Estadísticas</h1>
           <p className="text-brand-700 mt-0.5">
             Resumen de tu progreso con los hábitos
           </p>
@@ -187,7 +187,7 @@ const EstadisticasPage = () => {
       </div>
 
       {/* Carrusel: todos los hábitos con sus veces hechas/evitadas */}
-      <div className="mt-6 tarjeta p-6">
+      <div className="mt-4 sm:mt-6 tarjeta p-4 sm:p-6">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
             <h2 className="text-lg font-semibold text-brand-900">
@@ -207,8 +207,8 @@ const EstadisticasPage = () => {
       </div>
 
       {/* Promedio de cumplimiento + tasa de recuperación */}
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="tarjeta p-6">
+      <div className="mt-6 sm:mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="tarjeta p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-brand-900">
             Promedio de cumplimiento por hábito
           </h2>
@@ -243,7 +243,7 @@ const EstadisticasPage = () => {
           </div>
         </div>
 
-        <div className="tarjeta p-6">
+        <div className="tarjeta p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-brand-900">
             Tasa de recuperación por hábito
           </h2>
@@ -285,8 +285,8 @@ const EstadisticasPage = () => {
       </div>
 
       {/* Rachas máximas + hábitos en riesgo */}
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="tarjeta p-6">
+      <div className="mt-4 sm:mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="tarjeta p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-brand-900">
             Rachas máximas por hábito
           </h2>
@@ -344,7 +344,7 @@ const EstadisticasPage = () => {
           </div>
         </div>
 
-        <div className="tarjeta p-6">
+        <div className="tarjeta p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-brand-900">
             Hábitos en riesgo
           </h2>
@@ -389,7 +389,7 @@ const EstadisticasPage = () => {
       </div>
 
       {/* Correlación de hábitos */}
-      <div className="mt-6 tarjeta p-6">
+      <div className="mt-4 sm:mt-6 tarjeta p-4 sm:p-6">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center">
             <Share2 className="w-5 h-5" />
@@ -410,8 +410,8 @@ const EstadisticasPage = () => {
       </div>
 
       {/* Por día + evolución por semana */}
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="tarjeta p-6">
+      <div className="mt-4 sm:mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="tarjeta p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-brand-900">
             Marcas por día de la semana
           </h2>
@@ -434,7 +434,7 @@ const EstadisticasPage = () => {
           </div>
         </div>
 
-        <div className="tarjeta p-6">
+        <div className="tarjeta p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-brand-900">
             Evolución por semana
           </h2>
@@ -477,8 +477,8 @@ const EstadisticasPage = () => {
       </div>
 
       {/* Ranking + consistencia */}
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="tarjeta p-6">
+      <div className="mt-4 sm:mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="tarjeta p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-brand-900">
             Ranking de hábitos
           </h2>
@@ -524,7 +524,7 @@ const EstadisticasPage = () => {
           </table>
         </div>
 
-        <div className="tarjeta p-6">
+        <div className="tarjeta p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-brand-900">
             Consistencia por semana (%)
           </h2>
@@ -570,7 +570,7 @@ const EstadisticasPage = () => {
       </div>
 
       {/* Matriz día x hábito */}
-      <div className="mt-6 tarjeta p-6">
+      <div className="mt-4 sm:mt-6 tarjeta p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-brand-900">
           Matriz Día x Hábito
         </h2>

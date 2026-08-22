@@ -60,7 +60,7 @@ export const Navbar = () => {
 
         <div className="relative z-10 flex h-full flex-col">
           {/* SECCIÓN CUENTA / PERSONA */}
-          <div className="p-6 border-b border-brand-200/80 flex items-center gap-3 shrink-0">
+          <div className="p-4 sm:p-6 border-b border-brand-200/80 flex items-center gap-3 shrink-0">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 to-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-600/30 shrink-0">
               <User className="w-5 h-5" />
             </div>
@@ -81,7 +81,7 @@ export const Navbar = () => {
           </div>
 
           {/* Contenido desplazable */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
             {/* SECCIÓN HERRAMIENTAS */}
             <section>
               <h3 className="text-xs uppercase tracking-wider text-brand-800 mb-3 font-semibold">
@@ -123,7 +123,7 @@ export const Navbar = () => {
           </div>
 
           {/* SECCIÓN CONFIGURACIÓN / EXTRAS */}
-          <div className="shrink-0 p-6 border-t border-brand-200/80 space-y-3">
+          <div className="shrink-0 p-4 sm:p-6 border-t border-brand-200/80 space-y-3">
             <button
               type="button"
               onClick={() => setPersonalizacionAbierta(true)}

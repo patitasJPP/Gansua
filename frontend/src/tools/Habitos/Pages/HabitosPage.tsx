@@ -230,7 +230,7 @@ const HabitosPage = () => {
 
   if (cargandoHabitos) {
     return (
-      <div className="min-h-screen bg-brand-50 p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-50 p-4 sm:p-6 lg:p-8 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 text-brand-600 animate-spin mx-auto" />
           <p className="text-brand-600 mt-3 text-lg">Cargando hábitos...</p>
@@ -240,16 +240,16 @@ const HabitosPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-brand-50 to-brand-100/60 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-brand-50 to-brand-100/60 p-4 sm:p-6 lg:p-8">
       {/* CABECERA */}
-      <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
+      <div className="mb-4 sm:mb-6 lg:mb-8 flex items-center justify-between flex-wrap gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-600/30">
-              <CalendarCheck2 className="w-6 h-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-600/30">
+              <CalendarCheck2 className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-brand-900">Mis Hábitos</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-brand-900">Mis Hábitos</h1>
               <p className="text-brand-700 mt-0.5">
                 Marca los hábitos que cumpliste cada día
               </p>
@@ -333,9 +333,9 @@ const HabitosPage = () => {
       ) : (
         <div className="tarjeta overflow-hidden">
           <div className="overflow-x-auto">
-            <div className="min-w-[900px] grid grid-cols-[190px_repeat(7,1fr)]">
+            <div className="min-w-[600px] sm:min-w-[750px] lg:min-w-[900px] grid grid-cols-[130px_repeat(7,1fr)] sm:grid-cols-[160px_repeat(7,1fr)] lg:grid-cols-[190px_repeat(7,1fr)]">
               {/* Esquina superior izquierda */}
-              <div className="p-4 bg-brand-700 text-white font-semibold sticky left-0 z-10">
+              <div className="p-3 sm:p-4 bg-brand-700 text-white font-semibold sticky left-0 z-10 text-sm sm:text-base">
                 Hábito
               </div>
 
@@ -343,7 +343,7 @@ const HabitosPage = () => {
               {dias.map((dia) => (
                 <div
                   key={`dia-${dia}`}
-                  className="p-4 bg-brand-700 text-white font-semibold text-center"
+                  className="p-3 sm:p-4 bg-brand-700 text-white font-semibold text-center text-sm sm:text-base"
                 >
                   {capitalizar(dia)}
                 </div>
@@ -354,7 +354,7 @@ const HabitosPage = () => {
                 const esAbstinencia = habito.esAbstinencia === true;
                 return (
                   <Fragment key={`habito-${habito.id}`}>
-                    <div className="p-4 border-t border-brand-100 font-medium flex items-center justify-between gap-2 bg-white sticky left-0 z-10">
+                    <div className="p-3 sm:p-4 border-t border-brand-100 font-medium flex items-center justify-between gap-2 bg-white sticky left-0 z-10">
                       <div className="flex items-center gap-2 min-w-0">
                         {esAbstinencia && (
                           <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wide font-bold text-rose-600 bg-rose-100 rounded-full px-2 py-0.5 shrink-0">
@@ -393,7 +393,7 @@ const HabitosPage = () => {
                           type="button"
                           key={`${habito.id}-${dia}`}
                           onClick={() => toggle(dia, habito.id)}
-                          className={`p-4 border-t border-brand-100 flex items-center justify-center transition cursor-pointer ${
+                          className={`p-3 sm:p-4 border-t border-brand-100 flex items-center justify-center transition cursor-pointer ${
                             esAbstinencia
                               ? completado
                                 ? "bg-rose-50"
@@ -461,7 +461,7 @@ const HabitosPage = () => {
 
       {/* SECCIÓN DE RACHAS POR HÁBITO */}
       {rachas.length > 0 && (
-        <div className="mt-6 tarjeta p-6">
+        <div className="mt-4 sm:mt-6 tarjeta p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/30">
               <Flame className="w-5 h-5" />
@@ -486,7 +486,7 @@ const HabitosPage = () => {
               return (
                 <div
                   key={r.habitoId}
-                  className={`relative overflow-hidden rounded-2xl border p-5 ${
+                  className={`relative overflow-hidden rounded-2xl border p-4 sm:p-5 ${
                     r.esAbstinencia
                       ? "bg-gradient-to-br from-rose-50 to-rose-100/40 border-rose-200/60"
                       : superoRacha

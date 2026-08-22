@@ -61,12 +61,12 @@ export const KpiCard = ({
   const avance = (porcentaje / 100) * CIRCUNFERENCIA;
 
   return (
-    <div className="tarjeta p-5 flex items-start justify-between gap-3">
+    <div className="tarjeta p-4 sm:p-5 flex items-start justify-between gap-3">
       <div className="min-w-0">
         <p className="text-xs font-medium text-brand-600 uppercase tracking-wider">
           {titulo}
         </p>
-        <p className={`mt-2 text-3xl font-bold tabular-nums ${claseValor} truncate`}>
+        <p className={`mt-2 text-2xl sm:text-3xl font-bold tabular-nums ${claseValor} truncate`}>
           {valor}
         </p>
         {typeof delta === "number" && delta !== 0 && !trend && (
